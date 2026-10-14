@@ -18,11 +18,23 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- Umbraco.Cms.Infrastructure declares IDatabaseAvailabilityCheck and IUmbracoDatabaseFactory.
+         It is also the dependency the Umbraco Marketplace reads to work out which CMS versions this
+         package supports, so the range is deliberate rather than incidental.
+
+         The range spans two majors because this package touches three stable members, and the
+         assembly built against the 17.0.0 floor has been verified running unchanged on 18.2.1.
+         Capping at 18.0.0 instead would mean every consumer hit NU1107 on the day they upgraded the
+         CMS. The CI "compatibility" job compiles and tests against the top of the range to catch API
+         drift before it reaches anyone.
+
+         Overridable so CI can pin an exact version: -p:UmbracoCmsVersion=18.2.1 -->
+    <UmbracoCmsVersion Condition="'$(UmbracoCmsVersion)' == ''">[17.0.0, 19.0.0)</UmbracoCmsVersion>
+  </PropertyGroup>
+
   <ItemGroup>
-    <!-- Umbraco.Cms.Infrastructure is the assembly that declares IDatabaseAvailabilityCheck and
-         IUmbracoDatabaseFactory. It is also the NuGet dependency the Umbraco Marketplace reads to
-         determine which CMS versions this package supports, hence the explicit major-version range. -->
-    <PackageReference Include="Umbraco.Cms.Infrastructure" Version="[17.0.0, 18.0.0)" />
+    <PackageReference Include="Umbraco.Cms.Infrastructure" Version="$(UmbracoCmsVersion)" />
   </ItemGroup>
 
   <ItemGroup>

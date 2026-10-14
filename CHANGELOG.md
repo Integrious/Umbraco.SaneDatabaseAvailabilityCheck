@@ -8,7 +8,7 @@ All notable changes to this project are documented here. The format is based on
 
 ## [1.0.0] - 2026-10-14
 
-Initial release, targeting Umbraco 17.
+Initial release, supporting Umbraco 17 (LTS) and 18.
 
 ### Added
 
@@ -24,6 +24,10 @@ Initial release, targeting Umbraco 17.
 - Validation of all four settings, so a mistake in `appsettings.json` fails the boot with a message
   naming the setting rather than behaving unexpectedly.
 - `SaneDatabaseAvailabilityCheckComposer`, which registers the check automatically on install.
+- Support for both Umbraco 17 and 18 from a single assembly, via a
+  `Umbraco.Cms.Infrastructure [17.0.0, 19.0.0)` dependency, verified by booting the 17-built package
+  unmodified on 18.2.1 and by a CI job that compiles and tests against the newest supported CMS
+  version.
 
 [Unreleased]: https://github.com/Integrious/Umbraco.SaneDatabaseAvailabilityCheck/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/Integrious/Umbraco.SaneDatabaseAvailabilityCheck/releases/tag/v1.0.0

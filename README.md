@@ -115,11 +115,21 @@ exception is far more useful than a boot that hangs forever for a reason nobody 
 
 | Package version | Umbraco | .NET |
 | --- | --- | --- |
-| 1.x | 17.x | 10.0 |
+| 1.x | 17.x, 18.x | 10.0 |
 
 `IDatabaseAvailabilityCheck` was introduced in Umbraco 16.2.0, so there is no sensible way to back-port
 this to 16.1 or earlier. I've made a deliberate choice to target Umbraco 17 as the earliest supported 
 version because that is LTS.
+
+One assembly covers both majors. It is built against the 17.0.0 floor and depends on
+`Umbraco.Cms.Infrastructure [17.0.0, 19.0.0)`, which is deliberate rather than optimistic: the
+package touches only `IDatabaseAvailabilityCheck`, `IUmbracoDatabaseFactory.CanConnect` and
+`IUmbracoBuilder`, all unchanged across the range, and both majors target `net10.0`. It has been
+verified booting unmodified on 18.2.1, and CI compiles and runs the test suite against the newest
+supported CMS version on every build, so that API drift surfaces here rather than in your site.
+
+Capping the range at the next major instead - the more common convention - would mean anyone
+upgrading their CMS hit a hard `NU1107` restore failure until a new package version existed.
 
 ## Building
 
