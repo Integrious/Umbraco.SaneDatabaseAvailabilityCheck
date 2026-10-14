@@ -1,0 +1,14 @@
+## .NET
+bin/
+obj/
+artifacts/
+*.user
+*.suo
+.vs/
+.vscode/
+.idea/
+*.nupkg
+*.snupkg
+TestResults/
+coverage*.xml
+*.binlog

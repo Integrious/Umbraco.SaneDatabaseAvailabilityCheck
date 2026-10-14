@@ -1,0 +1,14 @@
+{
+  "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
+  "AuthorDetails": {
+    "Name": "Integrious",
+    "Url": "https://integrious.co.uk/",
+    "SyncContributorsFromRepository": true
+  },
+  "Category": "Developer Tools",
+  "DocumentationUrl": "https://github.com/Integrious/Umbraco.SaneDatabaseAvailabilityCheck#readme",
+  "IssueTrackerUrl": "https://github.com/Integrious/Umbraco.SaneDatabaseAvailabilityCheck/issues",
+  "LicenseTypes": [ "Free" ],
+  "PackageType": "Package",
+  "Tags": [ "database", "boot", "startup", "resilience", "retry", "azure-sql", "serverless", "devops" ]
+}
