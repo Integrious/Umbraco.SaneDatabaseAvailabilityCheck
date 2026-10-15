@@ -26,13 +26,13 @@ jobs:
       id-token: write   # issue the OIDC token that nuget.org exchanges for a publishing key
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # SourceLink embeds commit information, which needs full history.
           fetch-depth: 0
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
@@ -83,7 +83,7 @@ jobs:
           --skip-duplicate
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: artifacts/*
