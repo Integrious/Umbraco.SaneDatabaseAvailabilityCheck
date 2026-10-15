@@ -70,12 +70,18 @@ jobs:
           files: artifacts/*
           generate_release_notes: true
 
-      # The Marketplace otherwise picks up new versions on its own schedule: new packages
-      # daily at 0400 UTC, existing package details every two hours.
-      - name: Ask the Umbraco Marketplace to sync
-        continue-on-error: true
-        run: >
-          curl --fail --silent --show-error
-          -X POST https://functions.marketplace.umbraco.com/api/InitiateSinglePackageSyncFunction
-          -H 'Content-Type: application/json'
-          -d '{"PackageId": "Integrious.Umbraco.SaneDatabaseAvailabilityCheck"}'
+      # Disabled along with the "umbraco-marketplace" tag, which this package does not currently
+      # carry - see PackageTags in the csproj. Without that tag the Marketplace has nothing to sync,
+      # so asking it to would only produce a confusing failure in the release log. Re-enable this
+      # step at the same time as the tag.
+      #
+      # The Marketplace otherwise picks up new versions on its own schedule: new packages daily at
+      # 0400 UTC, existing package details every two hours.
+      #
+      # - name: Ask the Umbraco Marketplace to sync
+      #   continue-on-error: true
+      #   run: >
+      #     curl --fail --silent --show-error
+      #     -X POST https://functions.marketplace.umbraco.com/api/InitiateSinglePackageSyncFunction
+      #     -H 'Content-Type: application/json'
+      #     -d '{"PackageId": "Integrious.Umbraco.SaneDatabaseAvailabilityCheck"}'
