@@ -4,9 +4,11 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Umbraco checks that its database is reachable before it boots. If it is not, Umbraco tries **five
-times, one second apart**, and then throws a `BootFailedException`. Four seconds of patience.
+times, one second apart**, and then throws a `BootFailedException`. If the database isn't available 
+by then, the site enters an error state and will not reattempt startup until the App Pool is recycled.
 
-That is fine on a developer machine. It is not fine when the database is simply slow to arrive:
+That is fine on a developer machine. It is not fine in production when the database is simply slow to arrive,
+for example:
 
 - an **Azure SQL serverless** database resuming from auto-pause, which routinely takes 30-60 seconds;
 - a **container** that started before its database sidecar was listening;
@@ -19,6 +21,24 @@ before anyone notices.
 
 This package replaces that check with one that **keeps waiting**. By default it never gives up. If
 you would rather it did, set a timeout in seconds in `appsettings.json`.
+
+## CAUTION!
+
+It's important to note that this package replaces Umbraco's `IDatabaseAvailabilityCheck` implementation
+to **mitigate** the broken boot behaviour, but it **does not fix the underlying issue**. The real problem is that
+once the database availability check fails, the Umbraco will not be able to serve requests even when the 
+database is available until the application is restarted. I don't know of any other web framework that does this, 
+and I don't know why Umbraco does it either - it's a deliberate design choice, but one I consider to be 
+fundamentally broken.
+
+This package does not restart the application for you, it just makes it wait longer before giving up (by default 
+indefinitely - but see [before you set it to wait forever](#before-you-set-it-to-wait-forever) below). This means 
+that if your database is slow to come up, your application will be unresponsive until the database is available, 
+but it will eventually become responsive without requiring a manual restart. It would be much better to fail 
+quickly and return an error to the client and then reattempt boot, but there's no way to do that with Umbraco's 
+current design.
+
+The bug report for this issue is here: [https://github.com/umbraco/Umbraco-CMS/issues/17363]
 
 ## Installation
 
