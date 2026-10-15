@@ -1,0 +1,25 @@
+version: 2
+
+updates:
+  # Workflow actions go stale quietly: a pinned major keeps working long after its Node runtime is
+  # deprecated, and the only signal is a warning buried in a green run. This turns that into a PR.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '07:00'
+      timezone: Europe/London
+    # Work lands on develop and reaches main through a release merge, so updates belong there too.
+    target-branch: develop
+    # One PR for all of them. These move together and are reviewed together; separate PRs for six
+    # actions is noise that gets rubber-stamped, which defeats the point of reading the changelogs.
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: 'Update'
+    labels:
+      - dependencies
+    open-pull-requests-limit: 5
