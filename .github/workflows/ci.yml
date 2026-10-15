@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', 'Directory.Build.props') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --configuration Release --no-build
+
+      # Packing on every build keeps packaging failures - a missing icon, readme or
+      # licence - from being discovered only at release time.
+      - name: Pack
+        run: dotnet pack src/Integrious.Umbraco.SaneDatabaseAvailabilityCheck --configuration Release --no-build --output artifacts
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: artifacts/*
+
+  # The package declares support for Umbraco 17 and 18 with a single assembly built against the
+  # 17.0.0 floor. That claim is only safe while the handful of APIs it uses are unchanged across the
+  # range, so compile and test against the newest supported CMS version too. A break here means the
+  # dependency range needs capping, not that a consumer should find out at runtime.
+  compatibility:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        umbraco: ['18.2.1']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Build against Umbraco ${{ matrix.umbraco }}
+        run: dotnet build --configuration Release -p:UmbracoCmsVersion=${{ matrix.umbraco }}
+
+      - name: Test against Umbraco ${{ matrix.umbraco }}
+        run: dotnet test --configuration Release --no-build -p:UmbracoCmsVersion=${{ matrix.umbraco }}

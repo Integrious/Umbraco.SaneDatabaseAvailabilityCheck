@@ -1,0 +1,16 @@
+{
+  "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
+  "AuthorDetails": {
+    "Name": "Geoff Beaumont, Integrious",
+    "Url": "https://www.integrious.co.uk/",
+    "ImageUrl": "https://github.com/geoffbeaumont.png",
+    "SyncContributorsFromRepository": true
+  },
+  "Category": "Developer Tools",
+  "DocumentationUrl": "https://github.com/Integrious/Umbraco.SaneDatabaseAvailabilityCheck#readme",
+  "IssueTrackerUrl": "https://github.com/Integrious/Umbraco.SaneDatabaseAvailabilityCheck/issues",
+  "LicenseTypes": [ "Free" ],
+  "PackageType": "Package",
+  "Tags": [ "database", "boot", "startup", "resilience", "retry" ],
+  "VersionDependencyMode": "SemVer"
+}

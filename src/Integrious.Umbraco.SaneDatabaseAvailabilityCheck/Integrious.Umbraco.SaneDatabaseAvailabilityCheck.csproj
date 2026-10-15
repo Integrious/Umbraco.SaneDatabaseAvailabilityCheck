@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Integrious.Umbraco.SaneDatabaseAvailabilityCheck</RootNamespace>
+    <AssemblyName>Integrious.Umbraco.SaneDatabaseAvailabilityCheck</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Integrious.Umbraco.SaneDatabaseAvailabilityCheck</PackageId>
+    <Title>Sane Database Availability Check for Umbraco</Title>
+    <Description>Replaces Umbraco's default boot-time database availability check, which gives up after five attempts over four seconds. This package keeps retrying until the database answers, or until a timeout you configure in appsettings.json is reached. By default it never times out, so a site whose database is slow to start - an Azure SQL serverless database resuming, or a container that outpaced its database - boots successfully instead of failing with a BootFailedException.</Description>
+    <!-- The "umbraco-marketplace" tag is deliberately absent. It is the sole trigger for the Umbraco
+         Marketplace listing this package, and we want a contained deployment and more testing first.
+         To list it: add "umbraco-marketplace" back to the tags below, re-enable the Marketplace sync
+         step in .github/workflows/release.yml, and make sure umbraco-marketplace.json has reached
+         the default branch - the Marketplace reads it from the root of main, not from develop. -->
+    <PackageTags>umbraco;umbraco-package;database;boot;startup;resilience;retry;azure-sql;serverless</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReleaseNotes>See https://github.com/Integrious/Umbraco.SaneDatabaseAvailabilityCheck/blob/main/CHANGELOG.md</PackageReleaseNotes>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Umbraco.Cms.Infrastructure declares IDatabaseAvailabilityCheck and IUmbracoDatabaseFactory.
+         It is also the dependency the Umbraco Marketplace reads to work out which CMS versions this
+         package supports, so the range is deliberate rather than incidental.
+
+         The range spans two majors because this package touches three stable members, and the
+         assembly built against the 17.0.0 floor has been verified running unchanged on 18.2.1.
+         Capping at 18.0.0 instead would mean every consumer hit NU1107 on the day they upgraded the
+         CMS. The CI "compatibility" job compiles and tests against the top of the range to catch API
+         drift before it reaches anyone.
+
+         Overridable so CI can pin an exact version: -p:UmbracoCmsVersion=18.2.1 -->
+    <UmbracoCmsVersion Condition="'$(UmbracoCmsVersion)' == ''">[17.0.0, 19.0.0)</UmbracoCmsVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Umbraco.Cms.Infrastructure" Version="$(UmbracoCmsVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
+    <None Include="../../assets/icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Integrious.Umbraco.SaneDatabaseAvailabilityCheck.Tests" />
+  </ItemGroup>
+
+</Project>

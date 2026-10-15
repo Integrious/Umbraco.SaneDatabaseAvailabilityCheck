@@ -1,0 +1,36 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <!-- This library has one direct dependency, Umbraco.Cms.Infrastructure, pinned at a floor of
+         17.0.0 so that consumers can resolve any 17.x. Auditing its transitive graph would fail the
+         build over advisories in packages that the consuming site, not this package, chooses the
+         version of. -->
+    <NuGetAuditMode>direct</NuGetAuditMode>
+  </PropertyGroup>
+
+  <!-- Shared package metadata. Version is overridden by the release workflow from the git tag. -->
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <Authors>Integrious</Authors>
+    <Company>Integrious</Company>
+    <Copyright>Copyright (c) 2026 Integrious</Copyright>
+    <PackageProjectUrl>https://github.com/Integrious/Umbraco.SaneDatabaseAvailabilityCheck</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Integrious/Umbraco.SaneDatabaseAvailabilityCheck</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+</Project>
