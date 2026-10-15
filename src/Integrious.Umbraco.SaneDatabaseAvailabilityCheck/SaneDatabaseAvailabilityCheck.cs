@@ -73,14 +73,14 @@ public sealed class SaneDatabaseAvailabilityCheck : IDatabaseAvailabilityCheck
         TimeSpan? timeout = _options.TimeoutSeconds is { } timeoutSeconds
             ? TimeSpan.FromSeconds(timeoutSeconds)
             : null;
-        TimeSpan retryInterval = TimeSpan.FromSeconds(_options.RetryIntervalSeconds);
-        TimeSpan progressLogInterval = TimeSpan.FromSeconds(_options.ProgressLogIntervalSeconds);
+        var retryInterval = TimeSpan.FromSeconds(_options.RetryIntervalSeconds);
+        var progressLogInterval = TimeSpan.FromSeconds(_options.ProgressLogIntervalSeconds);
         TimeSpan? escalateToErrorAfter = _options.EscalateToErrorAfterSeconds is { } escalateAfterSeconds
             ? TimeSpan.FromSeconds(escalateAfterSeconds)
             : null;
 
-        long startedAt = TimeProvider.GetTimestamp();
-        TimeSpan nextProgressLogAt = progressLogInterval;
+        var startedAt = TimeProvider.GetTimestamp();
+        var nextProgressLogAt = progressLogInterval;
         var attempts = 0;
 
         while (true)
@@ -100,7 +100,7 @@ public sealed class SaneDatabaseAvailabilityCheck : IDatabaseAvailabilityCheck
                 return true;
             }
 
-            TimeSpan elapsed = TimeProvider.GetElapsedTime(startedAt);
+            var elapsed = TimeProvider.GetElapsedTime(startedAt);
 
             if (attempts == 1)
             {
@@ -114,7 +114,7 @@ public sealed class SaneDatabaseAvailabilityCheck : IDatabaseAvailabilityCheck
 
             if (elapsed >= nextProgressLogAt)
             {
-                LogLevel level = escalateToErrorAfter is { } threshold && elapsed >= threshold
+                var level = escalateToErrorAfter is { } threshold && elapsed >= threshold
                     ? LogLevel.Error
                     : LogLevel.Information;
 
@@ -147,11 +147,11 @@ public sealed class SaneDatabaseAvailabilityCheck : IDatabaseAvailabilityCheck
                 return false;
             }
 
-            TimeSpan delay = retryInterval;
+            var delay = retryInterval;
             if (timeout is { } deadline)
             {
                 // Never sleep past the deadline: the timeout is a promise about total boot delay.
-                TimeSpan remaining = deadline - elapsed;
+                var remaining = deadline - elapsed;
                 if (remaining < delay)
                 {
                     delay = remaining;

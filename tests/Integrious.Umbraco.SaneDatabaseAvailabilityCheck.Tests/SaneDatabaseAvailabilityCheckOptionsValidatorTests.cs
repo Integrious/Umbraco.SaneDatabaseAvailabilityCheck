@@ -10,7 +10,7 @@ public class SaneDatabaseAvailabilityCheckOptionsValidatorTests
     [Fact]
     public void TheDefaults_AreValid()
     {
-        ValidateOptionsResult result = Validate(new SaneDatabaseAvailabilityCheckOptions());
+        var result = Validate(new SaneDatabaseAvailabilityCheckOptions());
 
         Assert.True(result.Succeeded);
     }
@@ -20,7 +20,7 @@ public class SaneDatabaseAvailabilityCheckOptionsValidatorTests
     [InlineData(-1)]
     public void ATimeoutBelowOneSecond_IsRejectedWithAPointerToTheIndefiniteDefault(int timeoutSeconds)
     {
-        ValidateOptionsResult result = Validate(new SaneDatabaseAvailabilityCheckOptions
+        var result = Validate(new SaneDatabaseAvailabilityCheckOptions
         {
             TimeoutSeconds = timeoutSeconds,
         });
@@ -33,7 +33,7 @@ public class SaneDatabaseAvailabilityCheckOptionsValidatorTests
     [Fact]
     public void AnAbsentTimeout_IsValid()
     {
-        ValidateOptionsResult result = Validate(new SaneDatabaseAvailabilityCheckOptions
+        var result = Validate(new SaneDatabaseAvailabilityCheckOptions
         {
             TimeoutSeconds = null,
         });
@@ -46,7 +46,7 @@ public class SaneDatabaseAvailabilityCheckOptionsValidatorTests
     [InlineData(-5)]
     public void ARetryIntervalBelowOneSecond_IsRejected(int retryIntervalSeconds)
     {
-        ValidateOptionsResult result = Validate(new SaneDatabaseAvailabilityCheckOptions
+        var result = Validate(new SaneDatabaseAvailabilityCheckOptions
         {
             RetryIntervalSeconds = retryIntervalSeconds,
         });
@@ -58,7 +58,7 @@ public class SaneDatabaseAvailabilityCheckOptionsValidatorTests
     [Fact]
     public void AProgressLogIntervalBelowOneSecond_IsRejected()
     {
-        ValidateOptionsResult result = Validate(new SaneDatabaseAvailabilityCheckOptions
+        var result = Validate(new SaneDatabaseAvailabilityCheckOptions
         {
             ProgressLogIntervalSeconds = 0,
         });
@@ -71,7 +71,7 @@ public class SaneDatabaseAvailabilityCheckOptionsValidatorTests
     [Fact]
     public void AnEscalationThresholdOfZero_IsValid()
     {
-        ValidateOptionsResult result = Validate(new SaneDatabaseAvailabilityCheckOptions
+        var result = Validate(new SaneDatabaseAvailabilityCheckOptions
         {
             EscalateToErrorAfterSeconds = 0,
         });
@@ -82,7 +82,7 @@ public class SaneDatabaseAvailabilityCheckOptionsValidatorTests
     [Fact]
     public void ANegativeEscalationThreshold_IsRejected()
     {
-        ValidateOptionsResult result = Validate(new SaneDatabaseAvailabilityCheckOptions
+        var result = Validate(new SaneDatabaseAvailabilityCheckOptions
         {
             EscalateToErrorAfterSeconds = -1,
         });
@@ -94,7 +94,7 @@ public class SaneDatabaseAvailabilityCheckOptionsValidatorTests
     [Fact]
     public void EveryProblem_IsReportedAtOnce()
     {
-        ValidateOptionsResult result = Validate(new SaneDatabaseAvailabilityCheckOptions
+        var result = Validate(new SaneDatabaseAvailabilityCheckOptions
         {
             TimeoutSeconds = 0,
             RetryIntervalSeconds = 0,
@@ -110,7 +110,7 @@ public class SaneDatabaseAvailabilityCheckOptionsValidatorTests
     [Fact]
     public void FailuresName_TheAppSettingsPath()
     {
-        ValidateOptionsResult result = Validate(new SaneDatabaseAvailabilityCheckOptions
+        var result = Validate(new SaneDatabaseAvailabilityCheckOptions
         {
             RetryIntervalSeconds = 0,
         });

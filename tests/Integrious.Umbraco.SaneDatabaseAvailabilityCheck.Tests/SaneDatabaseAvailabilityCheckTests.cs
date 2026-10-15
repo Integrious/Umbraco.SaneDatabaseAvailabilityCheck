@@ -12,7 +12,7 @@ public class SaneDatabaseAvailabilityCheckTests
     [Fact]
     public void WhenDatabaseIsImmediatelyAvailable_ReturnsTrueWithoutWaiting()
     {
-        Harness harness = Harness.DatabaseAvailableAfter(TimeSpan.Zero, new SaneDatabaseAvailabilityCheckOptions());
+        var harness = Harness.DatabaseAvailableAfter(TimeSpan.Zero, new SaneDatabaseAvailabilityCheckOptions());
 
         Assert.True(harness.Run());
 
@@ -23,7 +23,7 @@ public class SaneDatabaseAvailabilityCheckTests
     [Fact]
     public void WhenDatabaseBecomesAvailableShortly_ReturnsTrueAndSaysSo()
     {
-        Harness harness = Harness.DatabaseAvailableAfter(
+        var harness = Harness.DatabaseAvailableAfter(
             TimeSpan.FromSeconds(10),
             new SaneDatabaseAvailabilityCheckOptions());
 
@@ -44,7 +44,7 @@ public class SaneDatabaseAvailabilityCheckTests
             RetryIntervalSeconds = 5,
         };
 
-        Harness harness = Harness.DatabaseAvailableAfter(TimeSpan.FromHours(2), options);
+        var harness = Harness.DatabaseAvailableAfter(TimeSpan.FromHours(2), options);
 
         Assert.Null(options.TimeoutSeconds);
         Assert.True(harness.Run());
@@ -59,7 +59,7 @@ public class SaneDatabaseAvailabilityCheckTests
             TimeoutSeconds = 30,
         };
 
-        Harness harness = Harness.DatabaseNeverAvailable(options);
+        var harness = Harness.DatabaseNeverAvailable(options);
 
         Assert.False(harness.Run());
 
@@ -77,7 +77,7 @@ public class SaneDatabaseAvailabilityCheckTests
             TimeoutSeconds = 60,
         };
 
-        Harness harness = Harness.DatabaseAvailableAfter(TimeSpan.FromSeconds(10), options);
+        var harness = Harness.DatabaseAvailableAfter(TimeSpan.FromSeconds(10), options);
 
         Assert.True(harness.Run());
         Assert.Equal(TimeSpan.FromSeconds(10), harness.Elapsed);
@@ -94,7 +94,7 @@ public class SaneDatabaseAvailabilityCheckTests
             RetryIntervalSeconds = 60,
         };
 
-        Harness harness = Harness.DatabaseNeverAvailable(options);
+        var harness = Harness.DatabaseNeverAvailable(options);
 
         Assert.False(harness.Run());
 
@@ -111,7 +111,7 @@ public class SaneDatabaseAvailabilityCheckTests
             RetryIntervalSeconds = 5,
         };
 
-        Harness harness = Harness.DatabaseNeverAvailable(options);
+        var harness = Harness.DatabaseNeverAvailable(options);
 
         Assert.False(harness.Run());
 
@@ -130,7 +130,7 @@ public class SaneDatabaseAvailabilityCheckTests
             EscalateToErrorAfterSeconds = null,
         };
 
-        Harness harness = Harness.DatabaseNeverAvailable(options);
+        var harness = Harness.DatabaseNeverAvailable(options);
 
         Assert.False(harness.Run());
 
@@ -151,7 +151,7 @@ public class SaneDatabaseAvailabilityCheckTests
             EscalateToErrorAfterSeconds = 25,
         };
 
-        Harness harness = Harness.DatabaseNeverAvailable(options);
+        var harness = Harness.DatabaseNeverAvailable(options);
 
         Assert.False(harness.Run());
 
@@ -173,7 +173,7 @@ public class SaneDatabaseAvailabilityCheckTests
             EscalateToErrorAfterSeconds = null,
         };
 
-        Harness harness = Harness.DatabaseNeverAvailable(options);
+        var harness = Harness.DatabaseNeverAvailable(options);
 
         Assert.False(harness.Run());
 
@@ -196,7 +196,7 @@ public class SaneDatabaseAvailabilityCheckTests
             EscalateToErrorAfterSeconds = null,
         };
 
-        Harness harness = Harness.DatabaseNeverAvailable(options);
+        var harness = Harness.DatabaseNeverAvailable(options);
 
         Assert.False(harness.Run());
 
@@ -212,7 +212,7 @@ public class SaneDatabaseAvailabilityCheckTests
             TimeoutSeconds = 10,
         };
 
-        Harness harness = Harness.DatabaseNeverAvailable(options);
+        var harness = Harness.DatabaseNeverAvailable(options);
 
         Assert.False(harness.Run());
 
@@ -227,19 +227,19 @@ public class SaneDatabaseAvailabilityCheckTests
     [Fact]
     public void WhenTestingTheConnectionThrows_PropagatesRatherThanRetryingForever()
     {
-        IUmbracoDatabaseFactory databaseFactory = Substitute.For<IUmbracoDatabaseFactory>();
+        var databaseFactory = Substitute.For<IUmbracoDatabaseFactory>();
         databaseFactory.CanConnect.Returns(_ => throw new InvalidOperationException("Unknown provider."));
 
-        Harness harness = Harness.For(databaseFactory, new SaneDatabaseAvailabilityCheckOptions());
+        var harness = Harness.For(databaseFactory, new SaneDatabaseAvailabilityCheckOptions());
 
-        InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() => harness.Run());
+        var exception = Assert.Throws<InvalidOperationException>(() => harness.Run());
         Assert.Equal("Unknown provider.", exception.Message);
     }
 
     [Fact]
     public void WithoutADatabaseFactory_Throws()
     {
-        Harness harness = Harness.DatabaseNeverAvailable(new SaneDatabaseAvailabilityCheckOptions());
+        var harness = Harness.DatabaseNeverAvailable(new SaneDatabaseAvailabilityCheckOptions());
 
         Assert.Throws<ArgumentNullException>(() => harness.Check.IsDatabaseAvailable(null!));
     }
@@ -299,13 +299,16 @@ public class SaneDatabaseAvailabilityCheckTests
             _startedAt = Clock.GetTimestamp();
         }
 
+        // Only what the tests themselves reach for is public. The clock and the factory are
+        // plumbing: the clock is read by Elapsed and by the DatabaseAvailableAfter factory below,
+        // and the factory only by Run.
+        private FakeTimeProvider Clock { get; }
+
+        private IUmbracoDatabaseFactory DatabaseFactory { get; }
+
         public SaneDatabaseAvailabilityCheck Check { get; }
 
-        public FakeTimeProvider Clock { get; }
-
         public RecordingLogger<SaneDatabaseAvailabilityCheck> Logger { get; }
-
-        public IUmbracoDatabaseFactory DatabaseFactory { get; }
 
         public List<TimeSpan> Sleeps { get; } = [];
 
@@ -317,7 +320,7 @@ public class SaneDatabaseAvailabilityCheckTests
 
         public static Harness DatabaseNeverAvailable(SaneDatabaseAvailabilityCheckOptions options)
         {
-            IUmbracoDatabaseFactory databaseFactory = Substitute.For<IUmbracoDatabaseFactory>();
+            var databaseFactory = Substitute.For<IUmbracoDatabaseFactory>();
             databaseFactory.CanConnect.Returns(false);
             return new Harness(databaseFactory, options);
         }
@@ -326,9 +329,9 @@ public class SaneDatabaseAvailabilityCheckTests
             TimeSpan delay,
             SaneDatabaseAvailabilityCheckOptions options)
         {
-            IUmbracoDatabaseFactory databaseFactory = Substitute.For<IUmbracoDatabaseFactory>();
+            var databaseFactory = Substitute.For<IUmbracoDatabaseFactory>();
             var harness = new Harness(databaseFactory, options);
-            DateTimeOffset availableFrom = harness.Clock.GetUtcNow() + delay;
+            var availableFrom = harness.Clock.GetUtcNow() + delay;
             databaseFactory.CanConnect.Returns(_ => harness.Clock.GetUtcNow() >= availableFrom);
             return harness;
         }
@@ -340,29 +343,21 @@ public class SaneDatabaseAvailabilityCheckTests
     /// The smallest thing that behaves like the container's validating options, so that the check's
     /// eager read of <see cref="IOptions{TOptions}.Value"/> can be tested without a container.
     /// </summary>
-    private sealed class ValidatingOptions<TOptions> : IOptions<TOptions>
+    private sealed class ValidatingOptions<TOptions>(TOptions value, IValidateOptions<TOptions> validator)
+        : IOptions<TOptions>
         where TOptions : class
     {
-        private readonly TOptions _value;
-        private readonly IValidateOptions<TOptions> _validator;
-
-        public ValidatingOptions(TOptions value, IValidateOptions<TOptions> validator)
-        {
-            _value = value;
-            _validator = validator;
-        }
-
         public TOptions Value
         {
             get
             {
-                ValidateOptionsResult result = _validator.Validate(Options.DefaultName, _value);
+                var result = validator.Validate(Options.DefaultName, value);
                 return result.Failed
                     ? throw new OptionsValidationException(
                         Options.DefaultName,
                         typeof(TOptions),
                         result.Failures)
-                    : _value;
+                    : value;
             }
         }
     }

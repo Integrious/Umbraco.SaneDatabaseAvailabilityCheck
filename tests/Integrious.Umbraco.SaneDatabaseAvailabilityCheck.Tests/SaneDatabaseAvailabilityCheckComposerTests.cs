@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Umbraco.Cms.Core.DependencyInjection;
@@ -14,7 +13,7 @@ public class SaneDatabaseAvailabilityCheckComposerTests
     [Fact]
     public void Compose_RegistersTheCheckAgainstTheUmbracoInterface()
     {
-        ServiceProvider provider = Compose();
+        var provider = Compose();
 
         Assert.IsType<SaneDatabaseAvailabilityCheck>(provider.GetRequiredService<IDatabaseAvailabilityCheck>());
     }
@@ -23,9 +22,9 @@ public class SaneDatabaseAvailabilityCheckComposerTests
     public void Compose_ReplacesAnyExistingRegistration()
     {
         var services = NewServiceCollection();
-        services.AddSingleton<IDatabaseAvailabilityCheck>(Substitute.For<IDatabaseAvailabilityCheck>());
+        services.AddSingleton(Substitute.For<IDatabaseAvailabilityCheck>());
 
-        ServiceProvider provider = Compose(services);
+        var provider = Compose(services);
 
         Assert.IsType<SaneDatabaseAvailabilityCheck>(provider.GetRequiredService<IDatabaseAvailabilityCheck>());
         Assert.Single(provider.GetServices<IDatabaseAvailabilityCheck>());
@@ -34,9 +33,9 @@ public class SaneDatabaseAvailabilityCheckComposerTests
     [Fact]
     public void Compose_WithNoConfiguration_LeavesTheCheckWaitingIndefinitely()
     {
-        ServiceProvider provider = Compose();
+        var provider = Compose();
 
-        SaneDatabaseAvailabilityCheckOptions options =
+        var options =
             provider.GetRequiredService<IOptions<SaneDatabaseAvailabilityCheckOptions>>().Value;
 
         Assert.Null(options.TimeoutSeconds);
@@ -49,7 +48,7 @@ public class SaneDatabaseAvailabilityCheckComposerTests
     [Fact]
     public void Compose_BindsFromTheDocumentedAppSettingsSection()
     {
-        ServiceProvider provider = Compose(configuration: new Dictionary<string, string?>
+        var provider = Compose(configuration: new Dictionary<string, string?>
         {
             ["Umbraco:DatabaseAvailabilityCheck:TimeoutSeconds"] = "600",
             ["Umbraco:DatabaseAvailabilityCheck:RetryIntervalSeconds"] = "5",
@@ -57,7 +56,7 @@ public class SaneDatabaseAvailabilityCheckComposerTests
             ["Umbraco:DatabaseAvailabilityCheck:EscalateToErrorAfterSeconds"] = "120",
         });
 
-        SaneDatabaseAvailabilityCheckOptions options =
+        var options =
             provider.GetRequiredService<IOptions<SaneDatabaseAvailabilityCheckOptions>>().Value;
 
         Assert.Equal(600, options.TimeoutSeconds);
@@ -69,12 +68,12 @@ public class SaneDatabaseAvailabilityCheckComposerTests
     [Fact]
     public void Compose_WiresUpValidation_SoBadConfigurationFailsTheBoot()
     {
-        ServiceProvider provider = Compose(configuration: new Dictionary<string, string?>
+        var provider = Compose(configuration: new Dictionary<string, string?>
         {
             ["Umbraco:DatabaseAvailabilityCheck:TimeoutSeconds"] = "0",
         });
 
-        OptionsValidationException exception = Assert.Throws<OptionsValidationException>(
+        var exception = Assert.Throws<OptionsValidationException>(
             provider.GetRequiredService<IDatabaseAvailabilityCheck>);
 
         Assert.Contains(
@@ -103,11 +102,11 @@ public class SaneDatabaseAvailabilityCheckComposerTests
     {
         services ??= NewServiceCollection();
 
-        IConfigurationRoot configurationRoot = new ConfigurationBuilder()
+        var configurationRoot = new ConfigurationBuilder()
             .AddInMemoryCollection(configuration ?? [])
             .Build();
 
-        IUmbracoBuilder builder = Substitute.For<IUmbracoBuilder>();
+        var builder = Substitute.For<IUmbracoBuilder>();
         builder.Services.Returns(services);
         builder.Config.Returns(configurationRoot);
 
