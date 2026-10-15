@@ -11,12 +11,19 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   release:
     runs-on: ubuntu-latest
+
+    # The trusted publishing policy on nuget.org is bound to this environment, so a workflow run
+    # outside it cannot obtain a publishing key even if it is this same workflow file.
     environment: nuget
+
+    permissions:
+      contents: write   # create the GitHub release
+      id-token: write   # issue the OIDC token that nuget.org exchanges for a publishing key
 
     steps:
       - uses: actions/checkout@v4
@@ -56,11 +63,23 @@ jobs:
           -p:Version=${{ steps.version.outputs.value }}
           --output artifacts
 
+      # Trusted publishing: exchanges a short-lived GitHub OIDC token for a nuget.org API key,
+      # so there is no long-lived secret to store or rotate. The key lasts one hour and the OIDC
+      # token is single use, so this must stay immediately before the push.
+      - name: Log in to NuGet via OIDC
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          # The nuget.org profile name that owns the trusted publishing policy, NOT an email
+          # address. Held as a secret only to keep it out of the public workflow file; it is not
+          # a credential, and nothing can be published with it alone.
+          user: ${{ secrets.NUGET_USER }}
+
       - name: Push to NuGet
         run: >
           dotnet nuget push "artifacts/*.nupkg"
           --source https://api.nuget.org/v3/index.json
-          --api-key "${{ secrets.NUGET_API_KEY }}"
+          --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}"
           --skip-duplicate
 
       - name: Create GitHub release
