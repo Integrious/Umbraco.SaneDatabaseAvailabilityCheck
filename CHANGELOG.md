@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-19
+
+### Added
+
+- The `umbraco-marketplace` NuGet tag, listing this package on the Umbraco Marketplace.
+
 ## [1.0.0] - 2026-10-14
 
 Initial release, supporting Umbraco 17 (LTS) and 18.
@@ -29,5 +35,6 @@ Initial release, supporting Umbraco 17 (LTS) and 18.
   unmodified on 18.2.1 and by a CI job that compiles and tests against the newest supported CMS
   version.
 
-[Unreleased]: https://github.com/Integrious/Umbraco.SaneDatabaseAvailabilityCheck/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/Integrious/Umbraco.SaneDatabaseAvailabilityCheck/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/Integrious/Umbraco.SaneDatabaseAvailabilityCheck/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Integrious/Umbraco.SaneDatabaseAvailabilityCheck/releases/tag/v1.0.0
